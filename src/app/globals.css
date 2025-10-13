@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+  
+  /* Aurora Background Colors */
+  --white: #ffffff;
+  --black: #000000;
+  --transparent: transparent;
+  --blue-300: #93c5fd;
+  --blue-400: #60a5fa;
+  --blue-500: #3b82f6;
+  --indigo-300: #a5b4fc;
+  --violet-200: #ddd6fe;
+}
+
+@keyframes aurora {
+  0% {
+    background-position: 50% 50%, 50% 50%;
+  }
+  50% {
+    background-position: 350% 50%, 350% 50%;
+  }
+  100% {
+    background-position: 50% 50%, 50% 50%;
+  }
+}
+
+@keyframes aurora-move {
+  0%, 100% {
+    transform: translateX(-50%) translateY(-50%) scale(1);
+    background-position: 0% 50%;
+  }
+  25% {
+    transform: translateX(-50%) translateY(-50%) scale(1.1);
+    background-position: 100% 50%;
+  }
+  50% {
+    transform: translateX(-50%) translateY(-50%) scale(0.9);
+    background-position: 200% 50%;
+  }
+  75% {
+    transform: translateX(-50%) translateY(-50%) scale(1.05);
+    background-position: 300% 50%;
+  }
+}
+
+body {
+  background: #000000 !important;
+  color: #ffffff;
+  font-family: var(--font-poppins), var(--font-inter), "Poppins", "Inter", "Noto Sans Bengali", "Noto Sans Devanagari", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  min-height: 100vh;
+}
+
+html {
+  background: #000000 !important;
+}
+
+/* Aurora Animation Utilities */
+.animate-aurora {
+  animation: aurora 120s ease-in-out infinite;
+}
+
+.animate-aurora-move {
+  animation: aurora-move 150s ease-in-out infinite;
+}
