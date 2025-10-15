@@ -2,10 +2,14 @@
 
 import { motion } from 'framer-motion';
 import { 
-  CpuChipIcon,
-  ShieldCheckIcon,
-  ClockIcon
+  CpuChipIcon,          // AI Processing / Automation
+  ShieldCheckIcon,      // Security / Accuracy
+  ClockIcon,            // Speed / Efficiency
+  DocumentMagnifyingGlassIcon, // Automated Extraction
+  SparklesIcon,         // NLP Quality Checks
+  SignalSlashIcon       // Offline Compatibility
 } from '@heroicons/react/24/outline';
+
 import { GlowCard } from './ui/spotlight-card';
 
 export default function AboutSystem() {
@@ -26,16 +30,16 @@ export default function AboutSystem() {
       title: "Fast Processing",
       description: "Assessment in hours, not weeks"
     },  {
-      icon: ShieldCheckIcon,
+      icon: SignalSlashIcon,
       title: "Offline Compatibilty",
       description: "Smart project evaluation being offline"
     },  {
-      icon: ClockIcon,
+      icon: SparklesIcon,
       title: "NLP Quality Checks",
       description: "Uses NLP modules for Reading Docs"
     },
     {
-      icon: CpuChipIcon,
+      icon: DocumentMagnifyingGlassIcon,
       title: "Automated Extraction",
       description: "No Human Intervention"
     },
@@ -105,8 +109,8 @@ export default function AboutSystem() {
         >
           <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-400 mb-1"></div>
-              <div className="text-sm text-gray-400"></div>
+              <div className="text-3xl font-bold text-blue-400 mb-1">95%</div>
+              <div className="text-sm text-gray-400">Fast Results</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-blue-400 mb-1">98%</div>
