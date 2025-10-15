@@ -19,7 +19,7 @@ export const AuroraBackground = ({
   slideshowInterval = 6,
   ...props
 }: AuroraBackgroundProps) => {
-  const images = ["/image4.png", "/image1.png" ,"/image2.png", "/image3.png"];
+  const images = ["/image4.png", "/image1.png" ,"/image2.png", "/image3.png" , "/image5.jpg"];
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
