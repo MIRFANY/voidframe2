@@ -2,18 +2,17 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
- "scripts": {
-  "dev": "next dev --turbopack",
-  "build": "next build",
-  "start": "next start"
-  }, 
-
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start"
+  },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@radix-ui/react-slot": "^1.2.3",
     "@types/bcryptjs": "^2.4.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "bcryptjs": "^3.0.2",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.22",
