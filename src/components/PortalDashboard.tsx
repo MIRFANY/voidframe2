@@ -196,17 +196,23 @@ const MDoNERDashboard: React.FC = () => {
 };
 
 // ----------------- Client Dashboard -----------------
+// ----------------- Client Dashboard -----------------
+
 const ClientDashboard: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadStatus, setUploadStatus] = useState<'idle' | 'uploading' | 'analyzing' | 'success' | 'error'>('idle');
+  const [uploadStatus, setUploadStatus] = useState<
+    'idle' | 'uploading' | 'analyzing' | 'success' | 'error'
+  >('idle');
   const [showPopup, setShowPopup] = useState(false);
+
   const [riskScore, setRiskScore] = useState(0);
   const [completeness, setCompleteness] = useState(0);
-  const { addDocument, getClientDocuments } = useDocuments();
 
+  const { addDocument, getClientDocuments } = useDocuments();
   const user = auth.getUser();
   const uploadedDocuments = user ? getClientDocuments(user.email) : [];
 
+  // ----------- File Select --------------
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -215,42 +221,57 @@ const ClientDashboard: React.FC = () => {
       setShowPopup(false);
     }
   };
+const [apiResponse, setApiResponse] = useState<any>(null);
 
-  const handleUpload = () => {
-    if (!selectedFile || !user) return;
+  // ---------- Upload → API Call --------------
+const handleUpload = async () => {
+  if (!selectedFile || !user) return;
 
+  try {
     setUploadStatus('uploading');
 
-    setTimeout(() => {
-      setUploadStatus('analyzing');
+    const formData = new FormData();
+    formData.append('file', selectedFile);
 
-      setTimeout(() => {
-        // Simulate risk and completeness
-        const completenessValue = Math.floor(Math.random() * 41 + 60); // 60-100%
-        const riskValue = completenessValue; // directly proportional (for demonstration)
-        setCompleteness(completenessValue);
-        setRiskScore(riskValue);
-        setShowPopup(true);
+    const res = await fetch('http://localhost:8000/evaluate', {
+      method: 'POST',
+      body: formData,
+    });
 
-        // Add document to context
-        addDocument({
-          name: selectedFile.name,
-          size: selectedFile.size,
-          uploadDate: new Date().toISOString().split('T')[0],
-          status: 'pending',
-          reviewerComments: 'Document uploaded successfully. Waiting for initial review.',
-          uploadedBy: { name: user.name, email: user.email, department: user.department },
-        });
+    if (!res.ok) throw new Error('API Error');
 
-        setUploadStatus('success');
+    const data = await res.json();
 
-        setTimeout(() => {
-          setSelectedFile(null);
-          setUploadStatus('idle');
-        }, 2000);
-      }, 3000);
-    }, 1500);
-  };
+    // ---- SAVE JSON FIRST ----
+    setApiResponse(data);
+    setCompleteness(data.completeness);
+    setRiskScore(data.risk);
+
+    // ---- OPEN POPUP ----
+    setShowPopup(true);
+
+    // ---- THEN save document ----
+    addDocument({
+      name: selectedFile.name,
+      size: selectedFile.size,
+      uploadDate: new Date().toISOString().split('T')[0],
+      status: 'pending',
+      reviewerComments: 'Document uploaded successfully. Awaiting review.',
+      uploadedBy: {
+        name: user.name,
+        email: user.email,
+        department: user.department,
+      },
+    });
+
+    setUploadStatus('success');
+
+  } catch (err) {
+    console.error(err);
+    setUploadStatus('error');
+  }
+};
+
 
   const handleRemoveFile = () => {
     setSelectedFile(null);
@@ -258,28 +279,23 @@ const ClientDashboard: React.FC = () => {
     setShowPopup(false);
   };
 
-  const getStatusBadge = (status: UploadedDocument['status']) => {
-    const config = {
-      pending: { bg: 'bg-yellow-900/50', text: 'text-yellow-300', border: 'border-yellow-500/30', icon: '⏳', label: 'Pending' },
-      viewed: { bg: 'bg-blue-900/50', text: 'text-blue-300', border: 'border-blue-500/30', icon: '👁️', label: 'Viewed' },
-      'under-review': { bg: 'bg-purple-900/50', text: 'text-purple-300', border: 'border-purple-500/30', icon: '🔍', label: 'Under Review' },
-      approved: { bg: 'bg-green-900/50', text: 'text-green-300', border: 'border-green-500/30', icon: '✅', label: 'Approved' },
-      rejected: { bg: 'bg-red-900/50', text: 'text-red-300', border: 'border-red-500/30', icon: '❌', label: 'Rejected' },
-    };
-    const c = config[status];
-    return <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${c.bg} ${c.text} border ${c.border}`}><span className="mr-1">{c.icon}</span>{c.label}</span>;
-  };
-
+  // ----------- Formatting Helpers --------------
   const formatFileSize = (bytes: number) => {
     if (!bytes) return '0 Bytes';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return (bytes / k ** i).toFixed(2) + ' ' + sizes[i];
   };
 
-  const formatDate = (date: string) => new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  const formatDate = (date: string) =>
+    new Date(date).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    });
 
+  // ----------------------------------------------
   return (
     <div className="w-full min-h-screen bg-black">
       <Navigation />
@@ -287,35 +303,58 @@ const ClientDashboard: React.FC = () => {
       {/* Upload Section */}
       <div className="w-full px-6 pt-32">
         <div className="bg-black/20 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl p-8">
-          <h2 className="text-2xl font-bold text-white mb-2">Add & Manage DPR Documents</h2>
-          <p className="text-gray-300 text-sm mb-6">Upload your DPR documents for AI-powered quality assessment and risk prediction</p>
+          <h2 className="text-2xl font-bold text-white mb-2">
+            Add & Manage DPR Documents
+          </h2>
+          <p className="text-gray-300 text-sm mb-6">
+            Upload your DPR documents for AI-powered quality assessment
+          </p>
 
+          {/* --------- Upload Box ---------- */}
           <div className="border-2 border-dashed border-white/30 rounded-xl p-8 text-center mb-6 hover:border-blue-400/50 transition-colors duration-200">
             {!selectedFile ? (
               <div>
                 <label htmlFor="file-upload" className="cursor-pointer text-white">
-                  <span className="text-blue-300 hover:text-blue-400 font-medium">Click to upload</span>
+                  <span className="text-blue-300 hover:text-blue-400 font-medium">
+                    Click to upload
+                  </span>
                   <span className="text-gray-300"> or drag and drop</span>
-                  <input id="file-upload" type="file" className="hidden" accept=".pdf,.doc,.docx" onChange={handleFileSelect} />
+                  <input
+                    id="file-upload"
+                    type="file"
+                    className="hidden"
+                    accept=".pdf"
+                    onChange={handleFileSelect}
+                  />
                 </label>
-                <p className="text-gray-400 text-sm mt-2">PDF, DOC, DOCX up to 10MB</p>
+                <p className="text-gray-400 text-sm mt-2">PDF up to 10MB</p>
               </div>
             ) : (
               <div className="flex items-center justify-between bg-white/10 rounded-lg p-4">
                 <div className="flex items-center space-x-3">
                   <p className="text-white font-medium">{selectedFile.name}</p>
-                  <p className="text-gray-400 text-sm">{Math.round(selectedFile.size / 1024)} KB</p>
+                  <p className="text-gray-400 text-sm">
+                    {Math.round(selectedFile.size / 1024)} KB
+                  </p>
                 </div>
-                <button onClick={handleRemoveFile} className="text-red-400 hover:text-red-300 transition-colors">Remove</button>
+                <button
+                  onClick={handleRemoveFile}
+                  className="text-red-400 hover:text-red-300 transition-colors"
+                >
+                  Remove
+                </button>
               </div>
             )}
           </div>
 
+          {/* -------- Upload Button -------- */}
           {selectedFile && (
             <div className="flex justify-center">
               <button
                 onClick={handleUpload}
-                disabled={uploadStatus === 'uploading' || uploadStatus === 'analyzing'}
+                disabled={
+                  uploadStatus === 'uploading' || uploadStatus === 'analyzing'
+                }
                 className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 ${
                   uploadStatus === 'uploading' || uploadStatus === 'analyzing'
                     ? 'bg-gray-600 text-gray-300 cursor-not-allowed'
@@ -324,36 +363,45 @@ const ClientDashboard: React.FC = () => {
                     : 'bg-blue-600 hover:bg-blue-700 text-white'
                 }`}
               >
-                {uploadStatus === 'uploading' ? 'Uploading...' : uploadStatus === 'analyzing' ? 'Analyzing...' : uploadStatus === 'success' ? 'Upload Successful!' : 'Upload Document'}
+                {uploadStatus === 'uploading'
+                  ? 'Uploading...'
+                  : uploadStatus === 'analyzing'
+                  ? 'Analyzing...'
+                  : uploadStatus === 'success'
+                  ? 'Upload Successful!'
+                  : 'Upload Document'}
               </button>
             </div>
           )}
 
-          {/* Popup Modal */}
-{showPopup && (
+         {showPopup && (
   <div className="fixed inset-0 flex items-center justify-center z-50">
     <div
       className="absolute inset-0 bg-black/70 backdrop-blur-sm"
       onClick={() => setShowPopup(false)}
     ></div>
-    <div className="bg-black/30 backdrop-blur-md border border-white/20 rounded-3xl shadow-2xl p-12 max-w-md mx-auto z-50">
-      <h3 className="text-3xl font-bold text-white mb-6">Upload Analysis</h3>
-      <p className="text-gray-300 mb-6 text-lg">
-        Document: <span className="font-semibold text-white">Dummy-DPR</span>
+
+    <div className="bg-black/30 backdrop-blur-md border border-white/20 rounded-3xl shadow-2xl p-12 max-w-xl mx-auto z-50">
+      <h3 className="text-3xl font-bold text-white mb-6">
+        API Response
+      </h3>
+
+      {/* File Name */}
+      <p className="text-gray-300 mb-4 text-lg">
+        File:{' '}
+        <span className="font-semibold text-white">
+          {selectedFile?.name}
+        </span>
       </p>
-      <div className="flex justify-between mb-6">
-        <div className="text-center">
-          <p className="text-gray-400 text-base">Completeness</p>
-          <p className="text-green-400 font-bold text-4xl">61%</p>
-        </div>
-        <div className="text-center">
-          <p className="text-gray-400 text-base">Risk</p>
-          <p className="text-red-400 font-bold text-4xl">34%</p>
-        </div>
+
+      {/* Show full JSON */}
+      <div className="bg-black/40 border border-white/20 rounded-xl p-4 mb-4 max-h-80 overflow-auto">
+        <pre className="text-green-300 text-sm whitespace-pre-wrap">
+          {JSON.stringify(apiResponse, null, 2)}
+        </pre>
       </div>
-      <div className="w-full bg-white/10 h-5 rounded-full overflow-hidden mb-6">
-        <div className="h-5 bg-green-500" style={{ width: `61%` }}></div>
-      </div>
+
+      {/* Close Button */}
       <button
         onClick={() => setShowPopup(false)}
         className="w-full mt-4 px-6 py-3 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg transition-all duration-200"
@@ -365,28 +413,42 @@ const ClientDashboard: React.FC = () => {
 )}
 
 
-          {/* Uploaded Documents */}
+          {/* -------- Uploaded Docs ---------- */}
           {uploadedDocuments.length > 0 && (
             <div className="bg-black/20 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl p-8 mt-8">
-              <h3 className="text-xl font-bold text-white mb-2">Uploaded Documents</h3>
-              <p className="text-gray-300 text-sm mb-4">Track the status of your submitted DPR documents</p>
+              <h3 className="text-xl font-bold text-white mb-2">
+                Uploaded Documents
+              </h3>
+              <p className="text-gray-300 text-sm mb-4">
+                Track the status of your DPR submissions
+              </p>
+
               <div className="space-y-4">
-                {uploadedDocuments.map(doc => (
-                  <div key={doc.id} className="bg-white/5 border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-colors duration-200">
+                {uploadedDocuments.map((doc) => (
+                  <div
+                    key={doc.id}
+                    className="bg-white/5 border border-white/10 rounded-xl p-6"
+                  >
                     <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-600/20 rounded-lg flex items-center justify-center flex-shrink-0"></div>
-                        <div>
-                          <h4 className="text-white font-semibold text-sm">{doc.name}</h4>
-                          <p className="text-gray-400 text-xs">{formatFileSize(doc.size)} • Uploaded on {formatDate(doc.uploadDate)}</p>
-                        </div>
+                      <div>
+                        <h4 className="text-white font-semibold">
+                          {doc.name}
+                        </h4>
+                        <p className="text-gray-400 text-xs">
+                          {formatFileSize(doc.size)} • Uploaded on{' '}
+                          {formatDate(doc.uploadDate)}
+                        </p>
                       </div>
-                      {getStatusBadge(doc.status)}
                     </div>
+
                     {doc.reviewerComments && (
                       <div className="bg-black/20 border border-white/10 rounded-lg p-3 mt-3">
-                        <p className="text-xs text-gray-400 mb-1">Reviewer Comments:</p>
-                        <p className="text-gray-300 text-sm">{doc.reviewerComments}</p>
+                        <p className="text-xs text-gray-400 mb-1">
+                          Reviewer Comments:
+                        </p>
+                        <p className="text-gray-300 text-sm">
+                          {doc.reviewerComments}
+                        </p>
                       </div>
                     )}
                   </div>
@@ -399,5 +461,6 @@ const ClientDashboard: React.FC = () => {
     </div>
   );
 };
+
 
 export default PortalContent;
