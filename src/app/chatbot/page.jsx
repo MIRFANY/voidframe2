@@ -22,7 +22,7 @@ export default function ChatbotPage() {
     "Admin steps to approve DPR.",
   ];
 
-  // Auto-scroll
+  // Auto-scroll on message change
   useEffect(() => {
     chatRef.current?.scrollTo({
       top: chatRef.current.scrollHeight,
@@ -35,26 +35,22 @@ export default function ChatbotPage() {
     const finalText = text || input;
     if (!finalText.trim()) return;
 
-    // Push user message
     setMessages((prev) => [...prev, { sender: "user", text: finalText }]);
     setInput("");
 
-    // Create empty bot bubble for streaming
+    // Empty bot bubble for response
     setMessages((prev) => [...prev, { sender: "bot", text: "" }]);
     setIsStreaming(true);
 
-    // Use your existing FASTAPI /ask endpoint
     const res = await fetch("http://127.0.0.1:8000/ask", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query: finalText }),
     });
 
-    // Read full response (non-stream)
     const data = await res.json();
-    let formatted = data.answer || "No response from server.";
+    const formatted = data.answer || "No response from server.";
 
-    // Update bot message
     setMessages((prev) => {
       const updated = [...prev];
       updated[updated.length - 1].text = formatted;
@@ -68,7 +64,7 @@ export default function ChatbotPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white">
       <Navigation />
 
-      <div className="max-w-3xl mx-auto px-6 pt-32 pb-40">
+      <div className="max-w-3xl mx-auto px-6 pt-32 pb-48">
 
         <h1 className="text-4xl font-bold mb-6 bg-gradient-to-r from-blue-300 to-blue-600 text-transparent bg-clip-text">
           MDONER AI Chatbot
@@ -77,7 +73,7 @@ export default function ChatbotPage() {
         {/* Chat Window */}
         <div
           ref={chatRef}
-          className="backdrop-blur-lg bg-white/5 border border-white/10 shadow-2xl rounded-xl p-6 h-[520px] overflow-y-auto custom-scroll"
+          className="backdrop-blur-lg bg-white/5 border border-white/10 shadow-2xl rounded-xl p-6 h-[520px] overflow-y-auto"
         >
           {messages.map((m, i) => (
             <div key={i} className={`my-4 flex ${m.sender === "user" ? "justify-end" : ""}`}>
@@ -88,12 +84,10 @@ export default function ChatbotPage() {
                     : "bg-gray-800/70 border border-gray-700 rounded-bl-none"
                 }`}
               >
-                {/* ⭐ Updated formatting using <pre> */}
                 <pre className="whitespace-pre-wrap leading-relaxed">
                   {m.text}
                 </pre>
 
-                {/* Blinking cursor for streaming */}
                 {isStreaming && i === messages.length - 1 && (
                   <span className="ml-1 animate-pulse">▍</span>
                 )}
@@ -101,20 +95,26 @@ export default function ChatbotPage() {
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Input Bar */}
-        <div className="flex gap-3 fixed bottom-0 left-0 w-full bg-black/90 backdrop-blur-xl px-6 py-4 border-t border-gray-800">
+      {/* ✨ Floating Input Bar — Improved Placement & UI */}
+      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 w-[95%] md:w-[70%] lg:w-[50%]">
+        <div className="flex gap-3 bg-gray-900/90 backdrop-blur-xl border border-gray-700 shadow-2xl rounded-2xl px-4 py-3">
+
           <input
             type="text"
-            className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl"
+            className="flex-1 px-4 py-2 bg-gray-800 border border-gray-700 rounded-xl text-white
+                       focus:outline-none focus:ring-2 focus:ring-blue-600"
             placeholder="Ask something..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
           />
+
           <button
             onClick={() => sendMessage()}
-            className="px-6 py-3 bg-blue-600 rounded-xl hover:bg-blue-700 transform active:scale-95"
+            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-xl font-semibold
+                       shadow-lg transform hover:scale-105 active:scale-95 transition"
             disabled={isStreaming}
           >
             Send
@@ -122,13 +122,14 @@ export default function ChatbotPage() {
         </div>
       </div>
 
-      {/* Suggestions */}
-      <div className="fixed bottom-28 right-6 flex flex-col gap-3">
+      {/* Floating Suggestions */}
+      <div className="fixed bottom-32 right-6 flex flex-col gap-3">
         {suggestions.map((text, idx) => (
           <button
             key={idx}
             onClick={() => sendMessage(text)}
-            className="px-4 py-2 text-xs bg-black/60 backdrop-blur-md border border-gray-700 rounded-full hover:bg-gray-700 transition"
+            className="px-4 py-2 text-xs bg-black/60 backdrop-blur-md border border-gray-700 
+                       rounded-full hover:bg-gray-700 transition shadow-lg"
           >
             {text}
           </button>
