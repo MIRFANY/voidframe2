@@ -15,7 +15,7 @@ export default function ChatbotPage() {
   const chatRef = useRef(null);
 
   const suggestions = [
-    "How do I upload a DPR?",
+    "How do I upload a DPR? , give answer in mizo ",
     "Explain the completeness check.",
     "How do I track project status?",
     "What are risk indicators?",
