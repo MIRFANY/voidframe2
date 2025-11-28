@@ -1,19 +1,23 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-import { auth } from '@/lib/auth';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter, usePathname } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { motion, AnimatePresence } from "framer-motion";
 
-const Navigation: React.FC = () => {
+const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLanguageMenuOpen, setIsLanguageMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+<<<<<<< HEAD
   const [activeSection, setActiveSection] = useState<string>('');
   const [currentLanguage, setCurrentLanguage] = useState({ code: 'en', name: 'English', nativeName: 'English' });
 
+=======
+  const [activeSection, setActiveSection] = useState("");
+>>>>>>> 5f0adfe8aeaf4af62c9728ffa720137e3a8a25d6
   const router = useRouter();
   const pathname = usePathname();
 
@@ -77,79 +81,109 @@ const Navigation: React.FC = () => {
   }, [pathname]);
 
   const navigationItems = [
-    { name: 'Add & Manage DPR', href: '#manage-dpr' },
-    { name: 'AI Chatbot', href: '#offline-feature' },
-    { name: 'Demo Video', href: '#offline-feature' },
-    { name: 'How to Analyze DPR', href: '#offline-feature' },
-    { name: 'Offline', href: '#offline-feature' },
+    { name: "Add & Manage DPR", href: "#manage-dpr" },
+    { name: "AI Chatbot", href: "/chatbot" },
+    { name: "Demo Video", href: "#offline-feature" },
+    { name: "How to Analyze DPR", href: "#offline-feature" },
+    { name: "Offline", href: "#offline-feature" },
   ];
 
   const handleScrollTo = (href: string) => {
     const targetId = href.substring(1);
+<<<<<<< HEAD
     const targetElement = document.getElementById(targetId);
     if (targetElement) {
       targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+=======
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+>>>>>>> 5f0adfe8aeaf4af62c9728ffa720137e3a8a25d6
       setActiveSection(targetId);
     }
   };
 
+  const handleNavigation = (href: string) => {
+    if (href.startsWith("/")) router.push(href);
+    else handleScrollTo(href);
+  };
+
   const languages = [
-    { code: 'en', name: 'English', nativeName: 'English' },
-    { code: 'hi', name: 'Hindi', nativeName: 'हिंदी' },
-    { code: 'as', name: 'Assamese', nativeName: 'অসমীয়া' },
-    { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
+    { code: "en", nativeName: "English" },
+    { code: "hi", nativeName: "हिंदी" },
+    { code: "as", nativeName: "অসমীয়া" },
+    { code: "bn", nativeName: "বাংলা" },
   ];
+<<<<<<< HEAD
+=======
+
+  const [currentLanguage, setCurrentLanguage] = useState(languages[0]);
+
+  useEffect(() => {
+    setIsAuthenticated(auth.isAuthenticated());
+
+    const storageListener = () => setIsAuthenticated(auth.isAuthenticated());
+    window.addEventListener("storage", storageListener);
+    return () => window.removeEventListener("storage", storageListener);
+  }, [pathname]);
+>>>>>>> 5f0adfe8aeaf4af62c9728ffa720137e3a8a25d6
 
   const handleLogout = () => {
     auth.logout();
-    router.push('/');
+    router.push("/");
   };
 
   return (
     <header className="fixed top-0 left-0 w-full z-50">
-      <div className="backdrop-blur-md bg-black/30 border-b border-white/20 shadow-lg rounded-b-2xl transition-all duration-300">
+      <div className="backdrop-blur-md bg-black/30 border-b border-white/20 shadow-lg rounded-b-2xl">
         <div className="flex items-center justify-between px-6 md:px-12 h-20">
 
           {/* Logo */}
           <Link href="/" className="flex items-center gap-4">
             <Image
               src="/mdoner-logo-dark.png"
-              alt="DPR Assessment Logo"
-              width={280}
-              height={84}
-              className="h-12 w-auto object-contain hover:opacity-80 transition-opacity duration-200"
-              priority
+              alt="DPR Portal Logo"
+              width={260}
+              height={80}
+              className="h-12 w-auto"
             />
-            <div className="hidden md:flex flex-col">
-              <h1 className="text-lg font-bold text-white">DPR Assessment System</h1>
-              <p className="text-xs text-gray-300">Quality Assessment & Risk Prediction Portal</p>
-            </div>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-6">
             <nav className="flex gap-4">
               {navigationItems.map((item) => (
                 <button
                   key={item.name}
+<<<<<<< HEAD
                   onClick={() => handleScrollTo(item.href)}
                   className={`relative text-sm font-medium px-2 py-1 ${activeSection === item.href.substring(1)
                       ? 'text-blue-400'
                       : 'text-gray-300 hover:text-blue-300'
                     }`}
+=======
+                  onClick={() => handleNavigation(item.href)}
+                  className="relative text-sm font-medium text-gray-300 hover:text-blue-400"
+>>>>>>> 5f0adfe8aeaf4af62c9728ffa720137e3a8a25d6
                 >
                   {item.name}
                 </button>
               ))}
             </nav>
 
-            {/* Language Selector */}
+            {/* Language Drop-down */}
             <div className="relative">
               <button
                 onClick={() => setIsLanguageMenuOpen(!isLanguageMenuOpen)}
+<<<<<<< HEAD
                 className="flex items-center gap-2 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white px-4 py-2 rounded-xl text-sm font-medium border border-white/30 transition-all duration-300 shadow-md"
               >
                 <span className="font-semibold">{currentLanguage.nativeName}</span>
+=======
+                className="flex items-center gap-2 bg-white/10 text-white px-4 py-2 rounded-xl"
+              >
+                {currentLanguage.nativeName}
+>>>>>>> 5f0adfe8aeaf4af62c9728ffa720137e3a8a25d6
               </button>
 
               <AnimatePresence>
@@ -158,6 +192,7 @@ const Navigation: React.FC = () => {
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
+<<<<<<< HEAD
                     className="absolute right-0 mt-2 w-56 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl z-50"
                   >
                     <div className="py-2">
@@ -177,11 +212,28 @@ const Navigation: React.FC = () => {
                         </button>
                       ))}
                     </div>
+=======
+                    className="absolute right-0 mt-2 w-56 bg-white/10 p-2 rounded-2xl"
+                  >
+                    {languages.map((lang) => (
+                      <button
+                        key={lang.code}
+                        onClick={() => {
+                          setCurrentLanguage(lang);
+                          setIsLanguageMenuOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 text-white hover:bg-white/20 rounded-md"
+                      >
+                        {lang.nativeName}
+                      </button>
+                    ))}
+>>>>>>> 5f0adfe8aeaf4af62c9728ffa720137e3a8a25d6
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
 
+<<<<<<< HEAD
             {/* 🔔 Notification Bell */}
             <div className="relative">
               <button
@@ -240,23 +292,28 @@ const Navigation: React.FC = () => {
             </div>
 
             {/* CTA */}
+=======
+            {/* Auth */}
+>>>>>>> 5f0adfe8aeaf4af62c9728ffa720137e3a8a25d6
             {isAuthenticated ? (
               <button
                 onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-transform transform hover:scale-105 shadow-lg"
+                className="bg-red-600 px-4 py-2 rounded-md text-white"
               >
                 Logout
               </button>
             ) : (
               <Link
                 href="/login"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-transform transform hover:scale-105 shadow-lg"
+                className="bg-blue-600 px-4 py-2 rounded-md text-white"
               >
                 Login to Access
               </Link>
             )}
+
           </div>
 
+<<<<<<< HEAD
           {/* Mobile Menu Button */}
           <div className="md:hidden">
             <button
@@ -277,6 +334,36 @@ const Navigation: React.FC = () => {
             </button>
           </div>
         </div>
+=======
+          {/* Mobile Menu Toggle */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden text-gray-300"
+          >
+            ☰
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div className="md:hidden px-4 py-4 bg-black/80">
+              {navigationItems.map((item) => (
+                <button
+                  key={item.name}
+                  onClick={() => {
+                    handleNavigation(item.href);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="text-gray-300 text-left py-2"
+                >
+                  {item.name}
+                </button>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+>>>>>>> 5f0adfe8aeaf4af62c9728ffa720137e3a8a25d6
       </div>
     </header>
   );
