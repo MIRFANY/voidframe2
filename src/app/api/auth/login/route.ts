@@ -76,6 +76,10 @@ export async function POST(request: NextRequest) {
         department: user.department
       }
     });
+    
+    // login // after successful signup
+// await fetch(`${NOTIFICATION_SERVICE}/notify/signup`, { method: "POST", body: JSON.stringify({ userId, email, phone, name })});
+
 
   } catch (error) {
     console.error('Login error:', error);

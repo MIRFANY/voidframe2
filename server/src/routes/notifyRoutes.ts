@@ -22,7 +22,8 @@ router.post("/login", async (req, res) => {
   try {
     await svc.onLogin({ userId, email, phone, ip, device });
     res.json({ ok: true });
-  } catch (err) { 
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ ok: false, error: err });
   }
 });
