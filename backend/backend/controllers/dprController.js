@@ -76,20 +76,11 @@ export const getAllDPRs = async (req, res) => {
   }
 };
 
+
 export const getMyDPRs = async (req, res) => {
   try {
-    const dprs = await DPR.find({ uploadedBy: "client" }).sort({ createdAt: -1 });
+    const dprs = await DPR.find().sort({ createdAt: -1 });
     res.json({ status: true, data: dprs });
-  } catch (err) {
-    res.status(500).json({ status: false, message: "Server error" });
-  }
-};
-export const getDPRById = async (req, res) => {
-  try {
-    const dpr = await DPR.findById(req.params.id);
-    if (!dpr) return res.status(404).json({ status: false, message: "DPR not found" });
-
-    res.json({ status: true, data: dpr });
   } catch (err) {
     res.status(500).json({ status: false, message: "Server error" });
   }
