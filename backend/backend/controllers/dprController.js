@@ -8,7 +8,7 @@ const uploadToCloudinary = (buffer) => {
     const stream = cloudinary.uploader.upload_stream(
       {
         folder: "dpr",
-        resource_type: "raw", // required for PDF
+        resource_type: "raw" // required for PDFs
       },
       (error, result) => {
         if (error) reject(error);
@@ -25,29 +25,59 @@ export const uploadDPR = async (req, res) => {
     if (!req.file)
       return res.status(400).json({ status: false, message: "No file uploaded" });
 
-    const { uploadedBy, title, risk, completeness, analysis } = req.body;
+    const { title, risk, completeness, analysis } = req.body; 
+    // 🔥 NOTE: Frontend sends analysis as:
+    // backend.append("analysis", JSON.stringify(aiData));
 
-    // Upload PDF → Cloudinary
+    // -------------------------------------------
+    // CLOUDINARY UPLOAD
+    // -------------------------------------------
     const pdf = await uploadToCloudinary(req.file.buffer);
 
-    // Parse analysis JSON (safe)
-    let parsedAnalysis = {};
+    // -------------------------------------------
+    // SAFE PARSE AI DATA
+    // -------------------------------------------
+    let parsed = {};
+
     try {
-      parsedAnalysis = typeof analysis === "string" ? JSON.parse(analysis) : analysis;
-    } catch {
-      parsedAnalysis = { error: "Invalid analysis format" };
+      parsed = typeof analysis === "string" ? JSON.parse(analysis) : analysis;
+    } catch (err) {
+      console.log("❌ ANALYSIS JSON PARSE ERROR:", err);
+      parsed = {};
     }
 
-    // Save DPR entry into DB
+    // FastAPI returns:
+    // {
+    //   evaluation: "...",
+    //   issues: [...],
+    //   highlighted_pdf: "annotated/xxx.pdf"
+    // }
+
+    const evaluation = parsed.evaluation || "";
+    const issues = parsed.issues || [];
+    const highlighted_pdf = parsed.highlighted_pdf || null;
+
+    // -------------------------------------------
+    // SAVE DPR TO DATABASE
+    // -------------------------------------------
     const dpr = await DPR.create({
       title: title || req.file.originalname,
-      description: "AI-evaluated DPR document",
+      description: "AI evaluated DPR document",
+
       fileUrl: pdf.secure_url,
       publicId: pdf.public_id,
+
       risk: Number(risk || 0),
       completeness: Number(completeness || 0),
-      analysis: parsedAnalysis,
-    uploadedBy: uploadedBy || "client", 
+
+      uploadedBy: "client", // 🔥 always static
+
+      evaluationData: {
+        evaluation,
+        issues,
+        highlighted_pdf,
+        raw: parsed, // store entire AI response
+      }
     });
 
     return res.json({
@@ -56,7 +86,7 @@ export const uploadDPR = async (req, res) => {
       data: dpr,
     });
   } catch (err) {
-    console.error("DPR UPLOAD ERROR:", err);
+    console.error("❌ DPR UPLOAD ERROR:", err);
     return res.status(500).json({
       status: false,
       message: "Internal server error",
@@ -65,23 +95,27 @@ export const uploadDPR = async (req, res) => {
   }
 };
 
-// controllers/dprController.js
-
+// --------------------------------------------------------
+// GET ALL DPRs
+// --------------------------------------------------------
 export const getAllDPRs = async (req, res) => {
   try {
     const dprs = await DPR.find().sort({ createdAt: -1 });
     res.json({ status: true, data: dprs });
-  } catch (err) {
+  } catch {
     res.status(500).json({ status: false, message: "Server error" });
   }
 };
 
-
+// --------------------------------------------------------
+// GET My DPRs (FILTER BY USER EMAIL)
+// --------------------------------------------------------
 export const getMyDPRs = async (req, res) => {
   try {
+    // Future improvement: filter by req.user.email
     const dprs = await DPR.find().sort({ createdAt: -1 });
     res.json({ status: true, data: dprs });
-  } catch (err) {
+  } catch {
     res.status(500).json({ status: false, message: "Server error" });
   }
 };

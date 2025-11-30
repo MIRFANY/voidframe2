@@ -1,4 +1,3 @@
-// backend/models/DPR.js
 import mongoose from "mongoose";
 
 const dprSchema = new mongoose.Schema(
@@ -9,13 +8,19 @@ const dprSchema = new mongoose.Schema(
     fileUrl: String,
     publicId: String,
 
+    uploadedBy: {
+      type: String,
+      default: "client",   // STATIC — always client
+    },
+
     risk: Number,
     completeness: Number,
-    analysis: Object,
 
-    uploadedBy: {
-      type: String,    // ← YOU WANT TO SAVE "client" HERE
-      required: true,
+    evaluationData: {
+      evaluation: String,      // AI final report
+      issues: Array,           // list of issues
+      highlighted_pdf: String, // annotated PDF download link
+      raw: Object              // raw full FastAPI result
     },
   },
   { timestamps: true }
