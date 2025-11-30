@@ -3,7 +3,7 @@ import Footer from '@/components/Footer';
 import HeroSection from '@/components/HeroSection';
 import AboutSystem from '@/components/AboutSystem';
 import Features from '@/components/Features';
-import { AuroraBackground } from '@/components/ui/aurora-background';
+// import { AuroraBackground } from '@/components/ui/aurora-background';
 
 export default function Home() {
   return (

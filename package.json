@@ -2,24 +2,32 @@
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
- "scripts": {
-  "dev": "next dev --turbopack",
-  "build": "next build",
-  "start": "next start"
-  }, 
-
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start"
+  },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
     "@radix-ui/react-slot": "^1.2.3",
     "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
     "@types/jsonwebtoken": "^9.0.10",
-    "bcryptjs": "^3.0.2",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
+    "cloudinary": "^1.41.3",
     "clsx": "^2.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
     "framer-motion": "^12.23.22",
     "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.20.0",
+    "multer": "^2.0.2",
+    "multer-storage-cloudinary": "^4.0.0",
     "next": "15.5.4",
     "next-pwa": "^5.6.0",
+    "nodemailer": "^7.0.10",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "tailwind-merge": "^3.3.1"
@@ -27,12 +35,19 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^5.0.5",
+    "@types/mongoose": "^5.11.96",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^20.19.25",
+    "@types/nodemailer": "^7.0.3",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/socket.io-client": "^1.4.36",
+    "@types/twilio": "^3.19.2",
     "eslint": "^9",
     "eslint-config-next": "15.5.4",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5.9.3"
   }
 }
